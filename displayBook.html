@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Book Records</title>
+</head>
+<body>
+    <h2>Search Book Records</h2>
+
+    <label for="bookTitle">Select Book Title:</label>
+
+    <select id="bookTitle">
+        <option value="">-- Select a Book --</option>
+    </select>
+
+    <div id="bookDetails"></div>
+
+    <script>
+
+        let bookData = [];
+
+        // Fetch the JSON file from GitHub
+        fetch("https://raw.githubusercontent.com/nazurahmohamad/Lab06-JSON/refs/heads/main/books.json")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch JSON data");
+                }
+                return response.json();
+            })
+            .then(data => {
+                bookData = data.Books;
+
+                const select = document.getElementById("bookTitle");
+
+                // Display book titles in the select element
+                bookData.forEach(book => {
+                    const option = document.createElement("option");
+                    option.value = book.title;
+                    option.textContent = book.title;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => {
+                document.getElementById("bookDetails").textContent =
+                    "Unable to load book records.";
+                console.log(error);
+            });
+
+        // Search for the selected book
+        document.getElementById("bookTitle").addEventListener("change", function() {
+
+            const selectedTitle = this.value;
+
+            const book = bookData.find(book => book.title === selectedTitle);
+
+            const details = document.getElementById("bookDetails");
+
+            if (book) {
+                details.innerHTML = `
+                    <h3>Book Details</h3>
+                    <p><b>Title:</b> ${book.title}</p>
+                    <p><b>Author:</b> ${book.author}</p>
+                    <p><b>Publication Year:</b> ${book.publicationYear}</p>
+                    <p><b>Genres:</b> ${book.genres.join(", ")}</p>
+                `;
+            } else if (selectedTitle === "") {
+                details.textContent = "";
+            } else {
+                details.textContent = "Book not found.";
+            }
+
+        });
+
+    </script>
+</body>
+</html>
